@@ -1,15 +1,16 @@
-﻿using IPWatcher.Abstractions.Interfaces;
+﻿using IPWatcher.Abstractions.Domain;
+using IPWatcher.Abstractions.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace IPWatcher.ConsoleApp
+namespace IPWatcher.SyncHandler
 {
-    public class IPSyncHandler : IIPSyncService
+    public class IpSyncHandler : IIpSyncService
     {
-        private readonly ILogger<IPSyncHandler> _logger;
+        private readonly ILogger<IpSyncHandler> _logger;
         private readonly ICurrentIPResolver _getIPClient;
         private readonly IStorageRepository _storageIP;
 
-        public IPSyncHandler(ILogger<IPSyncHandler> logger, ICurrentIPResolver ip_client, IStorageRepository storage_client)
+        public IpSyncHandler(ILogger<IpSyncHandler> logger, ICurrentIPResolver ip_client, IStorageRepository storage_client)
         {
             _logger = logger;
             _getIPClient = ip_client;
@@ -20,7 +21,7 @@ namespace IPWatcher.ConsoleApp
         {
             var ipAddressTask = _getIPClient.GetIP(cancellationToken);
             var expectedIPAddressTask = _storageIP.GetLastStoredIP(cancellationToken);
-            IPWatcher.Abstractions.IPAddress expectedID = new() { Ip = "127.0.0.1"};
+            IPAddress expectedID = new() { Ip = "127.0.0.1"};
 
             var ipAddress = await ipAddressTask;
             var expectedIPAddress = await expectedIPAddressTask;
@@ -48,6 +49,12 @@ namespace IPWatcher.ConsoleApp
                     _logger.LogError("Storage updated failed: {updateIP}", updateResult.Error);
                 }
             }
+        }
+
+        public Task StopSync(CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("SyncHandler is stopping");
+            return Task.CompletedTask;
         }
     }
 }

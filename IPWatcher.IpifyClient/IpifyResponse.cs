@@ -1,5 +1,5 @@
 ﻿#pragma warning disable IDE1006 // Naming Styles
-namespace IpifyClient;
+namespace IPWatcher.IpifyClient;
 
 public class IpifyResponse
 {

@@ -1,6 +1,7 @@
 ﻿namespace IPWatcher.Abstractions.Interfaces;
 
-public interface IIPSyncService
+public interface IIpSyncService
 {
     Task StartSync(CancellationToken cancellationToken);
+    Task StopSync(CancellationToken cancellationToken);
 }

@@ -400,3 +400,4 @@ FodyWeavers.xsd
 # Appsettings
 **/appsettings.**.json
 /IPWatcher.ConsoleApp/appsettings.json
+/IPWatcher.SyncService/appsettings.json

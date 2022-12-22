@@ -1,4 +1,4 @@
-﻿namespace IPWatcher.Abstractions;
+﻿namespace IPWatcher.Abstractions.Domain;
 
 public class IPAddress
 {

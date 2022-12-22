@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace IpifyClient;
+namespace IPWatcher.IpifyClient;
 
 public static class IpifyClientServiceRegistration
 {

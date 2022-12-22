@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using IPWatcher.Abstractions.Domain;
 
 namespace IPWatcher.Abstractions.Interfaces;
 public interface ICurrentIPResolver

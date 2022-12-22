@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IPWatcher.Abstractions\IPWatcher.Abstractions.csproj" />
+    <ProjectReference Include="..\IPWatcher.AzurePersistentStorage\IPWatcher.AzurePersistentStorage.csproj" />
+    <ProjectReference Include="..\IPWatcher.IpifyClient\IPWatcher.IpifyClient.csproj" />
+  </ItemGroup>
+
+</Project>

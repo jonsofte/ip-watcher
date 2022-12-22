@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Diagnostics;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -11,9 +10,9 @@ public class SyncHostedService : IHostedService
 {
     private readonly ILogger _logger;
     private readonly IHostApplicationLifetime _appLifetime;
-    private readonly IIPSyncService _syncService;
+    private readonly IIpSyncService _syncService;
 
-    public SyncHostedService(ILogger<SyncHostedService> logger, IHostApplicationLifetime appLifetime, IIPSyncService iPSyncService)
+    public SyncHostedService(ILogger<SyncHostedService> logger, IHostApplicationLifetime appLifetime, IIpSyncService iPSyncService)
     {
         _logger = logger;
         _appLifetime = appLifetime;

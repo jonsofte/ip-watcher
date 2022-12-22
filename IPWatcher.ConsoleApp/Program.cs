@@ -1,12 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using System.Reflection;
-using IPWatcher.ConsoleApp;
-using IPWatcher.Abstractions.Interfaces;
-using IpifyClient;
+
 using IPWatcher.AzurePersistantStorage;
+using IPWatcher.SyncHandler;
+using IPWatcher.IpifyClient; 
+using IPWatcher.ConsoleApp;
 
 await CreateHostBuilder(args).RunConsoleAsync();
 
@@ -18,7 +18,7 @@ static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilde
         services.Configure<AzureStorageConfiguration>(hostBuilderContext.Configuration.GetSection("AzureStorageConfiguration"));
         services.AddIpifyClient();
         services.AddIPStorage();
-        services.TryAddSingleton<IIPSyncService, IPSyncHandler>();
+        services.AddSyncService();
         services.AddHostedService<SyncHostedService>();
     })
     .UseSerilog((hostBuilderContext, loggerConfiguration) => loggerConfiguration

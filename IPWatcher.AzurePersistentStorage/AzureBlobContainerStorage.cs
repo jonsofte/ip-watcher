@@ -5,9 +5,9 @@ using Azure.Identity;
 using Azure.Storage.Blobs;
 using CSharpFunctionalExtensions;
 using IPWatcher.Abstractions.Interfaces;
-using IPWatcher.Abstractions;
 using IPWatcher.AzurePersistantStorage;
 using Microsoft.Extensions.Options;
+using IPWatcher.Abstractions.Domain;
 
 namespace IPStorage
 {

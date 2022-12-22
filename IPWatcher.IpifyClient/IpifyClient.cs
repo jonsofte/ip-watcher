@@ -2,9 +2,9 @@
 using Microsoft.Extensions.Logging;
 using CSharpFunctionalExtensions;
 using IPWatcher.Abstractions.Interfaces;
-using IPWatcher.Abstractions;
+using IPWatcher.Abstractions.Domain;
 
-namespace IpifyClient;
+namespace IPWatcher.IpifyClient;
 public class IpifyClient : ICurrentIPResolver
 {
     private readonly IHttpClientFactory _httpClientFactory;
@@ -27,16 +27,16 @@ public class IpifyClient : ICurrentIPResolver
             if (result.IsSuccessStatusCode)
             {
                 string response = await result.Content.ReadAsStringAsync(cancellationToken);
-                var associationResponse = JsonSerializer.Deserialize<IpifyResponse>(response);
-                if (associationResponse != null)
+                var contentResponse = JsonSerializer.Deserialize<IpifyResponse>(response);
+                if (contentResponse != null)
                 {
-                    _logger.LogDebug("IpIfy client returned IP address {ip}", associationResponse.ip);
-                    var ip = new IPAddress() { Ip = associationResponse.ip };
+                    _logger.LogDebug("IpIfy client returned IP address {ip}", contentResponse.ip);
+                    var ip = new IPAddress() { Ip = contentResponse.ip };
                     return Result.Success(ip);
                 }
             }
-            _logger.LogError("Not able to get IP address");
-            return Result.Failure<IPAddress>("Not able to get IP address");
+            _logger.LogError($"Not able to get IP address: {result.StatusCode}");
+            return Result.Failure<IPAddress>($"Not able to get IP address: {result.StatusCode}");
         } catch (Exception ex)
         {
             _logger.LogError("Error: {error}", ex.Message);
