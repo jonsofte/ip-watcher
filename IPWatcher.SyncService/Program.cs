@@ -6,6 +6,7 @@ using IPWatcher.SyncService;
 using IPWatcher.AzurePersistantStorage;
 using IPWatcher.IpifyClient;
 using IPWatcher.SyncHandler;
+using Serilog.Events;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .UseContentRoot(Path.GetDirectoryName(AppContext.BaseDirectory)!)
@@ -13,9 +14,7 @@ IHost host = Host.CreateDefaultBuilder(args)
     {
         IHostEnvironment env = hostContext.HostingEnvironment;
         configuration.SetBasePath(AppContext.BaseDirectory);
-        configuration
-            .AddJsonFile("appSettings.json", optional: false, reloadOnChange: true)
-            .AddJsonFile($"appSettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+        configuration.AddEnvironmentVariables("IPWatcher_");
     })
     .ConfigureServices((hostBuilderContext, services) =>
     {
@@ -29,6 +28,8 @@ IHost host = Host.CreateDefaultBuilder(args)
     })
     .UseSerilog((hostBuilderContext, loggerConfiguration) => loggerConfiguration
         .ReadFrom.Configuration(hostBuilderContext.Configuration)
+        .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+        .MinimumLevel.Override("System.Net.Http.HttpClient", LogEventLevel.Warning)
         .WriteTo.Console())
     .Build();
 

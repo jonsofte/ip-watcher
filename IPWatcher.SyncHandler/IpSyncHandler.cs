@@ -21,24 +21,26 @@ namespace IPWatcher.SyncHandler
         {
             var ipAddressTask = _getIPClient.GetIP(cancellationToken);
             var expectedIPAddressTask = _storageIP.GetLastStoredIP(cancellationToken);
-            IPAddress expectedID = new() { Ip = "127.0.0.1"};
+            IPAddress expectedIP = new() { Ip = "127.0.0.1"};
 
             var ipAddress = await ipAddressTask;
             var expectedIPAddress = await expectedIPAddressTask;
 
             if (!ipAddress.IsSuccess) return;
+            _logger.LogInformation("Current IP address: {ip}", ipAddress.Value.Ip);
 
             if (expectedIPAddress.IsSuccess)
             {
-                expectedID = expectedIPAddress.Value;
+                expectedIP = expectedIPAddress.Value;
+                _logger.LogInformation("Fetched expected IP: {ip}", expectedIP.Ip);
             }
-            if (ipAddress.Value.Ip == expectedID.Ip)
+            if (ipAddress.Value.Ip == expectedIP.Ip)
             {
-                _logger.LogDebug("IPs are equal: {ip}",ipAddress.Value.Ip);
+                _logger.LogInformation("IPs are equal. Doing nothing",ipAddress.Value.Ip);
             }
             else
             {
-                _logger.LogInformation("IPs not equal: {current} != {expected}", ipAddress.Value.Ip, expectedID.Ip);
+                _logger.LogInformation("IPs not equal: {current} != {expected}", ipAddress.Value.Ip, expectedIP.Ip);
                 var updateResult = await _storageIP.UpdateCurrentIPAddress(ipAddress.Value, cancellationToken);
                 if (updateResult.IsSuccess)
                 {

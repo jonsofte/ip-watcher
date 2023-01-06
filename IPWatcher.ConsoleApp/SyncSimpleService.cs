@@ -23,7 +23,7 @@ public class SyncHostedService : IHostedService
     {
         var assembly = Assembly.GetExecutingAssembly();
         FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
-        _logger.LogDebug("{applicationName} Version: {applicationVersion}", assembly.GetName().Name, fileVersionInfo.ProductVersion);
+        _logger.LogInformation("{applicationName} Version: {applicationVersion}", assembly.GetName().Name, fileVersionInfo.ProductVersion);
         _appLifetime.ApplicationStarted.Register(() =>
         {
 

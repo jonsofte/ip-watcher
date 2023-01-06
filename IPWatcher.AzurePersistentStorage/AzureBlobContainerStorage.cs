@@ -47,7 +47,7 @@ namespace IPStorage
 
                 BinaryData downloadedData = (await blobClient.DownloadContentAsync(cancellationToken)).Value.Content;
                 var changeLog = JsonSerializer.Deserialize<ChangeLog>(downloadedData);
-                _logger.LogInformation("Fetched changelog from storage");
+                _logger.LogDebug("Fetched changelog from Azure storage. {logentries} log entries found", changeLog!.Log.Count);
                 return Result.Success(changeLog!);
             }
             catch (Exception ex)
@@ -65,13 +65,13 @@ namespace IPStorage
             { 
                 BinaryData downloadedData = (await blobClient.DownloadContentAsync(cancellationToken)).Value.Content;
                 var ip = JsonSerializer.Deserialize<IPAddress>(downloadedData);
-                _logger.LogInformation("Fetched {ip} from storage", ip!.Ip);
+                _logger.LogDebug("Fetched {ip} from Azure blob", ip!.Ip);
                 return Result.Success(ip);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Failed getting ip from storage: {message}", ex.Message);
-                _logger.LogError("{expetion}", ex.StackTrace);
+                _logger.LogError("Failed getting ip from Azure storage: {message}", ex.Message);
+                _logger.LogError("{exception}", ex.StackTrace);
                 return Result.Failure<IPAddress>($"Error {ex.Message}");
             }
         }
@@ -109,6 +109,7 @@ namespace IPStorage
                 var blobClient = containerClient.GetBlobClient(_configuration.Blob.ChangeLogFile);
                 string changelogSerialized = JsonSerializer.Serialize(changeLog);
                 await blobClient.UploadAsync(BinaryData.FromString(changelogSerialized), overwrite: true, cancellationToken);
+                _logger.LogDebug("Updated Azure ChangeLog. Total {logentries} log entries", changeLog.Log.Count);
             }
             catch (Exception ex)
             {
@@ -126,6 +127,7 @@ namespace IPStorage
                 var blobClient = containerClient.GetBlobClient(_configuration.Blob.CurrentIPFile);
                 string ipSerialized = JsonSerializer.Serialize(ipAddress);
                 await blobClient.UploadAsync(BinaryData.FromString(ipSerialized), overwrite: true, cancellationToken);
+                _logger.LogDebug("Updated Azure LastIP with IP: {ip}", ipAddress.Ip);
             }
             catch (Exception ex)
             {
