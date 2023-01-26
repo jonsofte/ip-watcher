@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ip-watcher.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+data:
+  IPWatcher_AzureStorageConfiguration__Authentication__X509CertificatePath: /app/certs/ip-watcher-cert.pfx
+  IPWatcher_AzureStorageConfiguration__Blob__AccountUri: {{  required "A valid Azure account URI must be provided in the azure.blob.accountUri value" .Values.azure.blob.accountUri }}  
+  IPWatcher_AzureStorageConfiguration__Blob__ChangeLogFile: {{ .Values.azure.blob.logFile }}
+  IPWatcher_AzureStorageConfiguration__Blob__ContainerName: {{ required "A valid Azure Blob Container name must be provided in the azure.blob.containerName value" .Values.azure.blob.containerName }} 
+  IPWatcher_AzureStorageConfiguration__Blob__CurrentIPFile: {{ .Values.azure.blob.currentIpFile }}
+  IPWatcher_CronScheduleConfiguration__CronSchedule: {{ .Values.cronSchedule }} 
+  IPWatcher_Serilog__MinimumLevel__Default: {{ .Values.loglevel }}

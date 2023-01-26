@@ -2,11 +2,15 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using Serilog.Events;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using OpenTelemetry;
 using IPWatcher.SyncService;
 using IPWatcher.AzurePersistantStorage;
 using IPWatcher.IpifyClient;
 using IPWatcher.SyncHandler;
-using Serilog.Events;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .UseContentRoot(Path.GetDirectoryName(AppContext.BaseDirectory)!)
@@ -19,8 +23,19 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostBuilderContext, services) =>
     {
         services.AddOptions();
-        services.Configure<CronScheduleConfiguration>(hostBuilderContext.Configuration.GetSection("CronScheduleConfiguration"));
+        services.AddOpenTelemetry()
+            .WithTracing(builder =>
+            {
+                builder.AddConsoleExporter()
+                .AddSource("IPWatcher")
+                .SetResourceBuilder(
+                    ResourceBuilder.CreateDefault()
+                        .AddService(hostBuilderContext.HostingEnvironment.ApplicationName))
+                ;
+            });
+        services.Configure<ApplicationConfiguration>(hostBuilderContext.Configuration.GetSection("ApplicationConfiguration"));
         services.Configure<AzureStorageConfiguration>(hostBuilderContext.Configuration.GetSection("AzureStorageConfiguration"));
+        services.TryAddSingleton(Sdk.CreateTracerProviderBuilder().Build()!);
         services.AddIpifyClient();
         services.AddIPStorage();
         services.AddSyncService();

@@ -1,6 +1,8 @@
 ﻿using IPWatcher.Abstractions.Domain;
 using IPWatcher.Abstractions.Interfaces;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.Trace;
+using System.Diagnostics;
 
 namespace IPWatcher.SyncHandler
 {
@@ -10,7 +12,7 @@ namespace IPWatcher.SyncHandler
         private readonly ICurrentIPResolver _getIPClient;
         private readonly IStorageRepository _storageIP;
 
-        public IpSyncHandler(ILogger<IpSyncHandler> logger, ICurrentIPResolver ip_client, IStorageRepository storage_client)
+        public IpSyncHandler(ILogger<IpSyncHandler> logger, ICurrentIPResolver ip_client, IStorageRepository storage_client, TracerProvider tracerProvider)
         {
             _logger = logger;
             _getIPClient = ip_client;
@@ -19,12 +21,21 @@ namespace IPWatcher.SyncHandler
 
         public async Task StartSync(CancellationToken cancellationToken)
         {
-            var ipAddressTask = _getIPClient.GetIP(cancellationToken);
+            var activitySource = new ActivitySource("Sample.DistributedTracing");
+            var synchronizationActivity = activitySource.StartActivity("Synchronization", ActivityKind.Server);
+
+            var getExpectedIPActivity = activitySource.StartActivity("Get Expected IP Address", ActivityKind.Client, synchronizationActivity!.Context);
             var expectedIPAddressTask = _storageIP.GetLastStoredIP(cancellationToken);
-            IPAddress expectedIP = new() { Ip = "127.0.0.1"};
+
+            var getCurrentIPActivity = activitySource.StartActivity("Get IP Address", ActivityKind.Client, synchronizationActivity!.Context);
+            var ipAddressTask = _getIPClient.GetIP(cancellationToken);
+            var expectedIP = new IPAddress() { Ip = "127.0.0.1"};
 
             var ipAddress = await ipAddressTask;
+            getCurrentIPActivity!.Stop();
+
             var expectedIPAddress = await expectedIPAddressTask;
+            getExpectedIPActivity!.Stop();
 
             if (!ipAddress.IsSuccess) return;
             _logger.LogInformation("Current IP address: {ip}", ipAddress.Value.Ip);
@@ -41,7 +52,9 @@ namespace IPWatcher.SyncHandler
             else
             {
                 _logger.LogInformation("IPs not equal: {current} != {expected}", ipAddress.Value.Ip, expectedIP.Ip);
+                var updateActivity = activitySource.StartActivity("Update Current IP Address", ActivityKind.Client, synchronizationActivity!.Context);
                 var updateResult = await _storageIP.UpdateCurrentIPAddress(ipAddress.Value, cancellationToken);
+                updateActivity!.Stop();
                 if (updateResult.IsSuccess)
                 {
                     _logger.LogInformation("Storage updated: {updateIP}", ipAddress.Value.Ip);
@@ -51,6 +64,7 @@ namespace IPWatcher.SyncHandler
                     _logger.LogError("Storage updated failed: {updateIP}", updateResult.Error);
                 }
             }
+            synchronizationActivity!.Stop();
         }
 
         public Task StopSync(CancellationToken cancellationToken)

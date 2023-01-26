@@ -5,10 +5,15 @@ using Serilog;
 
 using IPWatcher.AzurePersistantStorage;
 using IPWatcher.SyncHandler;
-using IPWatcher.IpifyClient; 
+using IPWatcher.IpifyClient;
 using IPWatcher.ConsoleApp;
 using Microsoft.Extensions.Configuration;
 using Serilog.Events;
+
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using OpenTelemetry;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 await CreateHostBuilder(args).RunConsoleAsync();
 
@@ -18,17 +23,25 @@ static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilde
     {
         IHostEnvironment env = hostContext.HostingEnvironment;
         configuration.AddEnvironmentVariables("IPWatcher_");
-        //configuration
-        //    .AddJsonFile("appSettings.json", optional: false, reloadOnChange: true)
-        //    .AddJsonFile($"appSettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
     })
     .ConfigureServices((hostBuilderContext, services) =>
     {
-
         services.AddOptions();
+        services.AddOpenTelemetry()
+            .WithTracing(builder =>
+            {
+                builder.AddConsoleExporter()
+                .AddSource("Sample.DistributedTracing")
+                .SetResourceBuilder(
+                    ResourceBuilder.CreateDefault()
+                        .AddService(hostBuilderContext.HostingEnvironment.ApplicationName))
+                ;
+            });
+        services.Configure<ApplicationConfiguration>(hostBuilderContext.Configuration.GetSection("ApplicationConfiguration"));
         services.Configure<AzureStorageConfiguration>(hostBuilderContext.Configuration.GetSection("AzureStorageConfiguration"));
         services.AddIpifyClient();
         services.AddIPStorage();
+        services.TryAddSingleton(Sdk.CreateTracerProviderBuilder().Build()!);
         services.AddSyncService();
         services.AddHostedService<SyncHostedService>();
     })
@@ -37,4 +50,4 @@ static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilde
         .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
         .MinimumLevel.Override("System.Net.Http.HttpClient", LogEventLevel.Warning)
         .WriteTo.Console()
-        ) ;
+        );

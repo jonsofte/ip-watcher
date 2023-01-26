@@ -13,15 +13,16 @@ public class SynchronizationCronService : IHostedService
     private readonly IHostApplicationLifetime _appLifetime;
     private readonly IIpSyncService _syncHandler;
     private readonly ILogger<SynchronizationCronService> _logger;
-    private readonly IOptionsMonitor<CronScheduleConfiguration> _configuration;
+    private readonly IOptionsMonitor<ApplicationConfiguration> _configuration;
     private readonly int _taskDelay = 1000 * 5;
+    private string _version;
     private CrontabSchedule _schedule;
     private string _cronScheduleString;
     private DateTime _nextRun;
 
     public SynchronizationCronService(
         IHostApplicationLifetime appLifetime,
-        IOptionsMonitor<CronScheduleConfiguration> configuration,
+        IOptionsMonitor<ApplicationConfiguration> configuration,
         ILogger<SynchronizationCronService> logger,
         IIpSyncService syncHandler)
     {
@@ -29,10 +30,12 @@ public class SynchronizationCronService : IHostedService
         _logger = logger;
         _syncHandler = syncHandler;
         _appLifetime = appLifetime;
+        
 
         if (string.IsNullOrWhiteSpace(configuration.CurrentValue.CronSchedule))
             throw new ArgumentNullException(nameof(configuration), $"Can't start service. Missing cron schedule. {nameof(configuration.CurrentValue.CronSchedule)}");
 
+        _version = configuration.CurrentValue.Version;
         _cronScheduleString = configuration.CurrentValue.CronSchedule;
         _schedule = CrontabSchedule.Parse(_cronScheduleString);
         _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
@@ -47,8 +50,8 @@ public class SynchronizationCronService : IHostedService
     public Task StartAsync(CancellationToken cancellationToken)
     {
         var assembly = Assembly.GetExecutingAssembly();
-        FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
-        _logger.LogInformation("{applicationName} Version: {applicationVersion}", assembly.GetName().Name, fileVersionInfo.ProductVersion);
+        var appVersion = !string.IsNullOrEmpty(_version) ? _version : "unknown";
+        _logger.LogInformation("{applicationName} Version: {applicationVersion}", assembly.GetName().Name, appVersion);
         _logger.LogInformation("Starting service. Next synchronizations is scheduled at: {nextScheduledTime}", _nextRun);
 
         _appLifetime.ApplicationStarted.Register(() =>

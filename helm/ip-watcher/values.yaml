@@ -1,0 +1,24 @@
+# Default values for ip-watcher.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/jonsofte/ip-watcher
+  pullPolicy: IfNotPresent
+
+loglevel: Information
+cronSchedule: "0 0 * * *"
+certificate: ""
+
+azure:
+  blob:
+    accountUri:
+    containerName:
+    currentIpFile: ip_watcher_current_ip.json
+    logFile: ip_watcher_change_log.json
+  auth:
+    certPassword:
+    tenantID:
+    clientID:

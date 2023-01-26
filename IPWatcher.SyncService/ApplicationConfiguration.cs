@@ -1,8 +1,9 @@
 ﻿namespace IPWatcher.SyncService;
 
-public class CronScheduleConfiguration
+public class ApplicationConfiguration
 {
     private string _cronSchedule;
+    private string _version;
 
     public string CronSchedule
     {
@@ -14,8 +15,19 @@ public class CronScheduleConfiguration
         }
     }
 
-    public CronScheduleConfiguration()
+    public string Version 
+    { 
+        get { return _version; }  
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value)) _version = "";
+            _version = value;
+        }
+    }
+
+    public ApplicationConfiguration()
     {
         _cronSchedule = "";
+        _version= "";
     }
 }

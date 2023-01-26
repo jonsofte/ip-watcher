@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ip-watcher
+  name: {{ include "ip-watcher.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: ip-watcher
+  template:
+    metadata:
+      labels:
+        app: ip-watcher
+    spec:
+      containers:
+      - image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+        name: {{ .Chart.Name }}
+        volumeMounts:
+        - name: certificate-volume
+          mountPath: /app/certs/
+          readOnly: true
+        envFrom:
+        - configMapRef:
+            name: ip-watcher-{{ .Chart.Name }}-config
+        - secretRef:
+            name: ip-watcher-{{ .Chart.Name }}-secrets
+      volumes:
+      - name: certificate-volume
+        secret:
+          secretName: ip-watcher-{{ .Chart.Name }}-certificate-secret
