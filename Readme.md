@@ -1,5 +1,7 @@
 # IP Watcher
 
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/jonsofte/ip-watcher/release.yml)
+
 A simple tool for monitoring the current public IP address of a host/cluster.
 
 If a service is running on a host or a cluster, and the public facing Ip address changes unexpectedly, this service will notice the change, and update a public accesible store with the new Ip address.
