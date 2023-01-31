@@ -1,7 +1,7 @@
 # IP Watcher
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/jonsofte/ip-watcher/release.yml)
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/jonsofte/ip-watcher)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/jonsofte/ip-watcher?link=https://github.com/jonsofte/ip-watcher/pkgs/container/ip-watcher)
 
 A simple tool for monitoring the current public IP address of a host/cluster.
 
