@@ -64,21 +64,21 @@ $ az ad app credential reset --id <application-id> --cert '@./ip-watcher-cert.pe
 
 # Assign read/write access to Application Service Principal
 
-# Set the scope for the role to reference the blob container.
-# Add subscription, resource-group, storage-account, and container
+# Set the Scope for the role binding to reference the correct blob container.
+# Replace subscription, resource-group, storage-account, and container
 scope="/subscriptions/<subscription>/resourceGroups/<resource-group>/providers/Microsoft.Storage/
 storageAccounts/<storage-account>/blobServices/default/containers/<container>"
 
-# Assign the Storage Blob Data Contributor role with the correct scope to the Application
+# Assign the "Storage Blob Data Contributor" role to the application with the created scope
 az role assignment create --role "Storage Blob Data Contributor" \
     --assignee <application-id> --scope $scope
 
 # The Application Service Principal is now ready to accept requests
 
-# Generate a pfx file to be used in the application for authentication to the newly
-# created Service Princial. Enter a password when requested. The certificate must be
-# mounted to the container and referenced as and environment variable. The password
-# should be stored as a secret.
+# Generate a pfx file to be used in the application for authentication to the newly created
+# Service Princial. Create a password when requested. The certificate must later be mounted
+# to the container and referenced as and environment variable. The password should be stored
+# as a secret.
 # -out (x)      # Output name for the genereated pfx file
 # -inkey (x)    # Input name for the private key
 # -in (x)       # Input name for the x509 certificate
@@ -98,11 +98,11 @@ The following Environment Variables must be provided to the container at startup
 ``` sh
 IPWatcher_Serilog__MinimumLevel__Default
 IPWatcher_CronScheduleConfiguration__CronSchedule
-IPWatcher_AzureStorageConfiguration__Authentication__X509CertificatePath
 IPWatcher_AzureStorageConfiguration__Blob__AccountUri
 IPWatcher_AzureStorageConfiguration__Blob__ContainerName
 IPWatcher_AzureStorageConfiguration__Blob__CurrentIPFile
 IPWatcher_AzureStorageConfiguration__Blob__ChangeLogFile
+IPWatcher_AzureStorageConfiguration__Authentication__X509CertificatePath
 IPWatcher_AzureStorageConfiguration__Authentication__X509Password
 IPWatcher_AzureStorageConfiguration__Authentication__AzureADTenantID
 IPWatcher_AzureStorageConfiguration__Authentication__AzureADClientID
