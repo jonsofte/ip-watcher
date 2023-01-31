@@ -113,12 +113,8 @@ The log level of the application.
 Example: **Information** or **Debug**
 
 **IPWatcher_CronScheduleConfiguration__CronSchedule:**  
-The Cron schedule for triggering a run of the check. Se https://crontab.guru/  
+The Cron schedule for triggering a run of the check. See [crontab guru](https://crontab.guru/)
 Example: * 10 * * *
-
-**IPWatcher_AzureStorageConfiguration__Authentication__X509CertificatePath:**  
-Path of the PFX Certificate that is being used in the application to authenticate to the Azure Application SP. Note: The file must also be mounted into the container at the same path.  
-Example: /certificates/certwithkey.pfx
 
 **IPWatcher_AzureStorageConfiguration__Blob__AccountUri:**  
 URL to the Azure Storage Blob.  
@@ -135,6 +131,10 @@ Example: ip_watcher_current_ip.json
 **IPWatcher_AzureStorageConfiguration__Blob__ChangeLogFile:**  
 Filename for JSON document in container that contains a log of previous registered IP Addresses.  
 Example: ip_watcher_change_log.json
+
+**IPWatcher_AzureStorageConfiguration__Authentication__X509CertificatePath:**  
+Path of the PFX Certificate that is being used in the application to authenticate to the Azure Application SP. Note: The file must also be mounted into the container at the same path.  
+Example: /certificates/certwithkey.pfx
 
 **The following variables should be added to the container as secrets:**  
 
