@@ -5,35 +5,37 @@
 
 A simple tool for monitoring the current public IP address of a host/cluster.
 
-If a service is running on a host or a cluster, and the public facing Ip address changes unexpectedly, this service will notice the change, and update a public accesible store with the new Ip address.
+If a service is running on a host that is using a public facing IP address that might change unexpectedly, this service will notice the change, and update a public accessible store with the new IP address. 
 
-When an external client, which is dependent on the internal service, notices that the service is no longer accessible, it can then poll the Ip address from the store, update it's internal configuration, and then rediscover and reconnect to the service that is now being exposed on the new Ip address.
+An external client, which is dependent on the internal service and detects that the service is no longer available, can then get the IP address from the store, update its internal configuration, and reconnect to the service that is now being exposed on the new IP address.
 
 ## Impementation
 
-The application is implemented in .Net. For detecting the current Ip address a client calls the [ipify.org](https://www.ipify.org/) public rest service. The previous registered Ip address is stored in a [Azure Storage Container Blob](https://azure.microsoft.com/en-us/products/storage/blobs). The application authenticates to Azure with an application service principal. This principal has an assigned role that has read/write access to the specified storage container.
-
-At a regular interval a cron job triggers the application. The current public IP address is then compared to the previous registered address. If it has changed, the new address is persisted to the storage container.
-
-Open Telemetry is being used to monitor the application. Logs and Traces are being provided to the Open Telemetry Collector. Traces can be monitored in Jaeager, and Logs can be viewed in ElastiSearch.
+* The application is implemented in .Net. 
+* For detecting the current IP address, a client calls the [ipify.org](https://www.ipify.org/) public REST API.
+* The previous registered IP address is stored in a [Azure Storage Container Blob](https://azure.microsoft.com/en-us/products/storage/blobs). 
+* The application authenticates to Azure with an Application Service Principal. The principal has an assigned role that has read/write access to the specified storage container.
+* A cron job triggers the application at a regular interval.
+* The current public IP address is then compared to the previous registered address. If it has changed, the new address is persisted to the storage container.
+* Open Telemetry is being provided to monitor the application. Logs and Traces are being forwarded to an [Open Telemetry Collector](https://opentelemetry.io/docs/collector/). Traces can then be monitored in Jaeger, and Logs can be viewed in ElasticSearch.
 
 ## Configuration
 
-1. Create the Azure Blob Storage Resource
+1. Create the Blob Storage Resource in Azure
 2. Create the Application Service principal in Azure AD
 3. Assign a Certificate to the Service Principal
 4. Create a Role Binding on the Blob Storage Container that gives the SP read/write access
-5. Install the ip-watcher tool
+5. Install the IP-watcher tool
 6. Configure the application
 
-### Creation and configuration of Service Principal in Azure AD (Points 2 to 4) with the az command tool
+### Creation and Configuration of Service Principal in Azure AD (Points 2 to 4) with the az command tool
 
 ``` sh
 # Create an Azure AD Application service principal for the application
 $ az ad app create --display-name ip-watcher-service
 { ... }
 
-# Get the Application ID from the newly created service principal
+# Get the Application ID from the newly created Service Principal
 $ az ad app list | jq '.[] | select(.displayName=="ip-watcher-service").appId'
 
 "00000000-0000-0000-0000-000000000000"
@@ -63,7 +65,7 @@ $ az ad app credential reset --id <application-id> --cert '@./ip-watcher-cert.pe
 # Assign read/write access to Application Service Principal
 
 # Set the scope for the role to reference the blob container.
-# Add subscription, resource-group, storage-account and container
+# Add subscription, resource-group, storage-account, and container
 scope="/subscriptions/<subscription>/resourceGroups/<resource-group>/providers/Microsoft.Storage/
 storageAccounts/<storage-account>/blobServices/default/containers/<container>"
 
@@ -71,11 +73,12 @@ storageAccounts/<storage-account>/blobServices/default/containers/<container>"
 az role assignment create --role "Storage Blob Data Contributor" \
     --assignee <application-id> --scope $scope
 
-# The Azure AD Application is now ready to accept requests
+# The Application Service Principal is now ready to accept requests
 
-# Genereate a pfx file to be used in the application for authentication against the
-# newly created certificate. Enter a password when requested. The certificate will
-# be mounted and referneced in the container. The password should be stored as a secret
+# Generate a pfx file to be used in the application for authentication to the newly
+# created Service Princial. Enter a password when requested. The certificate must be
+# mounted to the container and referenced as and environment variable. The password
+# should be stored as a secret.
 # -out (x)      # Output name for the genereated pfx file
 # -inkey (x)    # Input name for the private key
 # -in (x)       # Input name for the x509 certificate
@@ -90,7 +93,7 @@ $ openssl pkcs12 -export -out ip-watcher.pfx -inkey ip-watcher-key.pem \
 
 ### Configuration of the container/service
 
-The following env variables must be provided to the container at startup:
+The following Environment Variables must be provided to the container at startup:
 
 ``` sh
 IPWatcher_Serilog__MinimumLevel__Default
@@ -114,7 +117,7 @@ The Cron schedule for triggering a run of the check. Se https://crontab.guru/
 Example: * 10 * * *
 
 **IPWatcher_AzureStorageConfiguration__Authentication__X509CertificatePath:**  
-Path of the PFX Certificate that is being used in the application to authenticate to the Azure Application SP. Note: The file must also be mounted in to the container at the same path.  
+Path of the PFX Certificate that is being used in the application to authenticate to the Azure Application SP. Note: The file must also be mounted into the container at the same path.  
 Example: /certificates/certwithkey.pfx
 
 **IPWatcher_AzureStorageConfiguration__Blob__AccountUri:**  
@@ -126,11 +129,11 @@ Blob Container name.
 Example: ip-watcher
 
 **IPWatcher_AzureStorageConfiguration__Blob__CurrentIPFile:**  
-Filename for json document in container with the current registered IP Address.  
+Filename for JSON document in container with the current registered IP Address.  
 Example: ip_watcher_current_ip.json
 
 **IPWatcher_AzureStorageConfiguration__Blob__ChangeLogFile:**  
-Filename for json document in container that contains a log of previous registered IP Addresses.  
+Filename for JSON document in container that contains a log of previous registered IP Addresses.  
 Example: ip_watcher_change_log.json
 
 **The following variables should be added to the container as secrets:**  
