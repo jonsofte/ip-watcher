@@ -7,7 +7,7 @@ A simple tool for monitoring the current public IP address of a host/cluster.
 
 If a service is running on a host with a public facing IP address that might change unexpectedly, this service will notice the change, and update an external store with the new IP address. 
 
-An external client, which is dependent on the internal service that detects that the service is no longer available, can then get the IP address from the store, update its internal configuration, and reconnect to the service that is now being exposed on the new IP address.
+An external client which is dependent on the internal service, that detects that the service is no longer available, can then get the IP address from the store, update its internal configuration, and reconnect to the service that is now being exposed on the new IP address.
 
 ## Impementation
 
