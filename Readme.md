@@ -95,9 +95,9 @@ The Application Service Principal is now ready to accept requests
 ### Generate a PFX Certificate to be used in the service
 
 ``` sh
-# Service Princial. When requested to enter and create a new password, take note of the password
-# that is created. The certificate must later be mounted # to the container and referenced as 
-# and environment variable. 
+# When requested to enter and create a new password, take note of the password that is created. 
+# The certificate must later be mounted to the container and referenced as an environment 
+# variable. 
 # -out (x)      # Output name for the genereated pfx file
 # -inkey (x)    # Input name for the private key
 # -in (x)       # Input name for the x509 certificate
