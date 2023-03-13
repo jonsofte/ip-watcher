@@ -21,8 +21,8 @@ An external client which is dependent on the internal service, that detects that
 
 ## Installation and configuration of application on Azure and on local Kubernetes cluster with Helm
 
-1. Create a Storage Account in Azure. [Docs](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-cli) Take note of the Account URI
-2. Create a Blob Container in the Storage Account [Docs](https://learn.microsoft.com/en-us/azure/storage/blobs/blob-containers-cli) Take not of the Container name
+1. Create a Storage Account in Azure ([Docs](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-cli)). Take note of the Account URI
+2. Create a Blob Container in the Storage Account ([Docs](https://learn.microsoft.com/en-us/azure/storage/blobs/blob-containers-cli)). Take not of the Container name
 3. [Create the Application Service Principal in Azure AD](#create-the-application-service-principal-in-azure-ad)
 4. [Generate a x509 Certificate](#generate-a-x509-certificate) (To be used for Authentication between the app and the Azure Blob files)
 5. [Assign the Certificate to the Application Service Principal](#upload-the-certificate-to-azure-ad-and-bind-it-to-the-application-id)
