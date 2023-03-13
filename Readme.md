@@ -11,7 +11,6 @@ An external client which is dependent on the internal service, that detects that
 
 ## Impementation
 
-* The application is implemented in .Net. 
 * For detecting the current IP address, a client calls the [ipify.org](https://www.ipify.org/) public REST API.
 * The previous registered IP address is stored in a [Azure Storage Container Blob](https://azure.microsoft.com/en-us/products/storage/blobs). 
 * The application authenticates to Azure with an Application Service Principal. The principal has an assigned role that has read/write access to the specified storage container.
@@ -21,15 +20,15 @@ An external client which is dependent on the internal service, that detects that
 
 ## Installation and configuration of application on Azure and on local Kubernetes cluster with Helm
 
-1. Create a Storage Account in Azure ([Docs](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-cli)). Take note of the Account URI
-2. Create a Blob Container in the Storage Account ([Docs](https://learn.microsoft.com/en-us/azure/storage/blobs/blob-containers-cli)). Take not of the Container name
-3. [Create the Application Service Principal in Azure AD](#create-the-application-service-principal-in-azure-ad)
-4. [Generate a x509 Certificate](#generate-a-x509-certificate) (To be used for Authentication between the app and the Azure Blob files)
-5. [Assign the Certificate to the Application Service Principal](#upload-the-certificate-to-azure-ad-and-bind-it-to-the-application-id)
-6. [Create a Role Binding on the Blob Storage Container that gives the SP read/write access to the Blob](#assign-readwrite-access-to-application-service-principal)
-7. [Generate a PFX Certificate from the x509 certificate](#generate-a-pfx-file-to-be-used-in-the-application-for-authentication-to-the-newly-created) (To be used in the container for accessing the Blob)
+1. Create a Storage Account in Azure ([Docs](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-cli)). Take note of the Account URI.
+2. Create a Blob Container in the Storage Account ([Docs](https://learn.microsoft.com/en-us/azure/storage/blobs/blob-containers-cli#create-a-container)). Take not of the Container name.
+3. [Create the Application Service Principal in Azure AD](#create-the-application-service-principal-in-azure-ad).
+4. [Generate a x509 Certificate](#generate-a-x509-certificate) (To be used for Authentication between the app and the Azure Blob files).
+5. [Assign the Certificate to the Application Service Principal](#upload-the-certificate-to-azure-ad-and-bind-it-to-the-application-id).
+6. [Create a Role Binding on the Blob Storage Container that gives the SP read/write access to the Blob](#assign-readwrite-access-to-application-service-principal).
+7. [Generate a PFX Certificate from the x509 certificate](#generate-a-pfx-file-to-be-used-in-the-application-for-authentication-to-the-newly-created) (To be used in the container for accessing the Blob).
 6. Use Helm to install the application on a local cluster, or install the container manually.
-7. Configure the application via the values.yaml file
+7. Configure the application via the values.yaml file.
 
 ---
 
