@@ -11,25 +11,25 @@ An external client which is dependent on the internal service, that detects that
 
 ## Impementation
 
-* For detecting the current IP address, a client calls the [ipify.org](https://www.ipify.org/) public REST API.
+* For detecting the current IP address, the service calls the [ipify.org](https://www.ipify.org/) public REST API.
 * The previous registered IP address is stored in a [Azure Storage Container Blob](https://azure.microsoft.com/en-us/products/storage/blobs). 
 * The application authenticates to Azure with an Application Service Principal. The principal has an assigned role that has read/write access to the specified storage container.
-* A cron job triggers the application at a regular interval.
+* A cron job triggers and runs the service at a regular interval.
 * The current public IP address is compared to the previous registered address. If it has changed, the new address is persisted to the storage container.
-* Open Telemetry is being provided to monitor the application. Logs and Traces are being forwarded to an [Open Telemetry Collector](https://opentelemetry.io/docs/collector/). Traces can then be monitored in Jaeger, and Logs can be viewed in ElasticSearch.
-* The service is imlpemented with .Net 7.
+* Open Telemetry is provided from the service. Logs and Traces are being forwarded to an [Open Telemetry Collector](https://opentelemetry.io/docs/collector/). This enables Traces to be monitored in Jaeger, and Logs can be viewed in ElasticSearch.
+* The service is imlpemented with .NET 7.
 
 ## Installation and configuration
 
 1. Create a Storage Account in Azure ([Docs](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-cli)). Take note of the Account URI.
 2. Create a Blob Container in the Storage Account ([Docs](https://learn.microsoft.com/en-us/azure/storage/blobs/blob-containers-cli#create-a-container)). Take not of the Container name.
 3. [Create the Application Service Principal in Azure AD](#create-the-application-service-principal-in-azure-ad).
-4. [Generate a x509 Certificate](#generate-a-x509-certificate) (To be used for Authentication between the app and the Azure Blob files).
-5. [Assign the Certificate to the Application Service Principal](#upload-the-certificate-to-azure-ad-and-bind-it-to-the-application-id).
+4. [Generate a x509 certificate](#generate-a-x509-certificate) (To be used for Authentication between the app and the Azure Blob files).
+5. [Assign the certificate to the Application Service Principal](#upload-the-certificate-to-azure-ad-and-bind-it-to-the-application-id).
 6. [Create a Role Binding on the Blob Storage Container that gives the SP read/write access to the Blob](#assign-readwrite-access-to-application-service-principal).
 7. [Generate a PFX Certificate from the x509 certificate](#generate-a-pfx-file-to-be-used-in-the-application-for-authentication-to-the-newly-created) (To be used in the container for accessing the Blob).
 6. Use Helm to install the application on a local cluster, or install the container manually.
-7. Configure the application via the values.yaml file.
+7. Configure the application via the Helm values.yaml file.
 
 ---
 
