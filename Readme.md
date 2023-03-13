@@ -19,16 +19,21 @@ An external client which is dependent on the internal service, that detects that
 * The current public IP address is then compared to the previous registered address. If it has changed, the new address is persisted to the storage container.
 * Open Telemetry is being provided to monitor the application. Logs and Traces are being forwarded to an [Open Telemetry Collector](https://opentelemetry.io/docs/collector/). Traces can then be monitored in Jaeger, and Logs can be viewed in ElasticSearch.
 
-## Configuration
+## Installation and configuration of application on Azure and on local Kubernetes cluster with Helm
 
-1. Create the Blob Storage Resource in Azure
-2. Create the Application Service principal in Azure AD
-3. Assign a Certificate to the Service Principal
-4. Create a Role Binding on the Blob Storage Container that gives the SP read/write access
-5. Install the IP-watcher tool
-6. Configure the application
+1. Create a Storage Account in Azure. [Docs](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-cli) Take note of the Account URI
+2. Create a Blob Container in the Storage Account [Docs](https://learn.microsoft.com/en-us/azure/storage/blobs/blob-containers-cli) Take not of the Container name
+3. [Create the Application Service Principal in Azure AD](#create-the-application-service-principal-in-azure-ad)
+4. [Generate a x509 Certificate](#generate-a-x509-certificate) (To be used for Authentication between the app and the Azure Blob files)
+5. [Assign the Certificate to the Application Service Principal](#upload-the-certificate-to-azure-ad-and-bind-it-to-the-application-id)
+6. [Create a Role Binding on the Blob Storage Container that gives the SP read/write access to the Blob](#assign-readwrite-access-to-application-service-principal)
+7. [Generate a PFX Certificate from the x509 certificate](#generate-a-pfx-file-to-be-used-in-the-application-for-authentication-to-the-newly-created) (To be used in the container for accessing the Blob)
+6. Use Helm to install the application on a local cluster, or install the container manually.
+7. Configure the application via the values.yaml file
 
-### Creation and Configuration of Service Principal in Azure AD (Points 2 to 4) with the az command tool
+---
+
+### Create the Application Service principal in Azure AD
 
 ``` sh
 # Create an Azure AD Application service principal for the application
@@ -40,6 +45,11 @@ $ az ad app list | jq '.[] | select(.displayName=="ip-watcher-service").appId'
 
 "00000000-0000-0000-0000-000000000000"
 
+```
+
+### Generate a x509 Certificate
+
+``` sh
 # With OpenSSL, generate a x509 certificate with a corresponding private key
 # -days (x)     # Specify number of days before certificate expiration
 # -keyout (x)   # Output name for the generated Base64 encoded private key
@@ -52,7 +62,11 @@ $ openssl req -newkey rsa:2048 -new -nodes -x509 -days 365 -keyout ip-watcher-ke
 Generating a RSA private key
 ..............................................+++++
 ...
+```
 
+### Upload the certificate to Azure AD and bind it to the Application ID
+
+``` sh
 # Upload the certificate to Azure AD and bind it to the Application ID
 # --id (x)      # The Application ID in Azure. From the second step
 # --cert (x)    # Path to the Base64 encoded certificate
@@ -61,9 +75,11 @@ Generating a RSA private key
 $ az ad app credential reset --id <application-id> --cert '@./ip-watcher-cert.pem' --append
 
 { ... }
+```
 
-# Assign read/write access to Application Service Principal
+### Assign read/write access to Application Service Principal
 
+``` sh
 # Set the Scope for the role binding to reference the correct blob container.
 # Replace subscription, resource-group, storage-account, and container
 scope="/subscriptions/<subscription>/resourceGroups/<resource-group>/providers/Microsoft.Storage/
@@ -72,13 +88,16 @@ storageAccounts/<storage-account>/blobServices/default/containers/<container>"
 # Assign the "Storage Blob Data Contributor" role to the application with the created scope
 az role assignment create --role "Storage Blob Data Contributor" \
     --assignee <application-id> --scope $scope
+```
 
-# The Application Service Principal is now ready to accept requests
+The Application Service Principal is now ready to accept requests
 
-# Generate a pfx file to be used in the application for authentication to the newly created
-# Service Princial. Create a password when requested. The certificate must later be mounted
-# to the container and referenced as and environment variable. The password should be stored
-# as a secret.
+### Generate a pfx file to be used in the application for authentication to the newly created
+
+``` sh
+# Service Princial. When requested to enter and create a new password, take note of the password
+# that is created. The certificate must later be mounted # to the container and referenced as 
+# and environment variable. 
 # -out (x)      # Output name for the genereated pfx file
 # -inkey (x)    # Input name for the private key
 # -in (x)       # Input name for the x509 certificate
@@ -88,64 +107,22 @@ $ openssl pkcs12 -export -out ip-watcher.pfx -inkey ip-watcher-key.pem \
 
 { ... }
 ###
-
 ```
 
-### Configuration of the container/service
+### Helm Parameters
 
-The following Environment Variables must be provided to the container at startup:
+The following table lists the configurable parameters of the IP Watcher and their default values.
 
-``` sh
-IPWatcher_Serilog__MinimumLevel__Default
-IPWatcher_CronScheduleConfiguration__CronSchedule
-IPWatcher_AzureStorageConfiguration__Blob__AccountUri
-IPWatcher_AzureStorageConfiguration__Blob__ContainerName
-IPWatcher_AzureStorageConfiguration__Blob__CurrentIPFile
-IPWatcher_AzureStorageConfiguration__Blob__ChangeLogFile
-IPWatcher_AzureStorageConfiguration__Authentication__X509CertificatePath
-IPWatcher_AzureStorageConfiguration__Authentication__X509Password
-IPWatcher_AzureStorageConfiguration__Authentication__AzureADTenantID
-IPWatcher_AzureStorageConfiguration__Authentication__AzureADClientID
-```
-
-**IPWatcher_Serilog__MinimumLevel__Default:**  
-The log level of the application.  
-Example: **Information** or **Debug**
-
-**IPWatcher_CronScheduleConfiguration__CronSchedule:**  
-The Cron schedule for triggering a run of the check. See [crontab guru](https://crontab.guru/)
-Example: * 10 * * *
-
-**IPWatcher_AzureStorageConfiguration__Blob__AccountUri:**  
-URL to the Azure Storage Blob.  
-Example: https://****.blob.core.windows.net/
-
-**IPWatcher_AzureStorageConfiguration__Blob__ContainerName:**  
-Blob Container name.  
-Example: ip-watcher
-
-**IPWatcher_AzureStorageConfiguration__Blob__CurrentIPFile:**  
-Filename for JSON document in container with the current registered IP Address.  
-Example: ip_watcher_current_ip.json
-
-**IPWatcher_AzureStorageConfiguration__Blob__ChangeLogFile:**  
-Filename for JSON document in container that contains a log of previous registered IP Addresses.  
-Example: ip_watcher_change_log.json
-
-**IPWatcher_AzureStorageConfiguration__Authentication__X509CertificatePath:**  
-Path of the PFX Certificate that is being used in the application to authenticate to the Azure Application SP. Note: The file must also be mounted into the container at the same path.  
-Example: /certificates/certwithkey.pfx
-
-**The following variables should be added to the container as secrets:**  
-
-**IPWatcher_AzureStorageConfiguration__Authentication__X509Password:**  
-Password to be used when using the PFX certificate for authentication.  
-
-**IPWatcher_AzureStorageConfiguration__Authentication__AzureADTenantID:**  
-Azure AD Tenant ID for authenticating the application with Azure AD.  
-Example GUID format: 00000000-0000-0000-0000-000000000000
-
-**IPWatcher_AzureStorageConfiguration__Authentication__AzureADClientID:**  
-Azure AD Client ID for authenticating the application with Azure AD  
-Example GUID format: 00000000-0000-0000-0000-000000000000
+| Parameter                           | Description                                                   | Default                                                  |
+|-------------------------------------|---------------------------------------------------------------|----------------------------------------------------------|
+| `loglevel`                          | Application Log Level                                         | `Information`                                            |
+| `cronSchedule`                      | Cron Schedule for triggering a run of the check. See [crontab guru](https://crontab.guru/)  | `* 0 * * *`                |
+| `azure.blob.accountUri`             | URL to the Azure Storage Blob. Example: `https://****.blob.core.windows.net/` | `nil` **(Must be provided)**|
+| `azure.blob.containerName`          | Blob Container name | `nil` **(Must be provided)**|
+| `azure.blob.currentIpFile`          | Filename for JSON document in container with the current registered IP Address | `ip_watcher_current_ip.json` |
+| `azure.blob.logFile`                | Filename for JSON document in container that contains a log of previous registered IP Addresses | `ip_watcher_change_log.json` |
+| `azure.authentication.x509CertificatePath` | Path of the PFX Certificate that is being used in the application to authenticate to the Azure Application Service Principal. Note: If value is changed, the file must also be mounted into the container at the same path. | `/certificates/certwithkey.pfx` |
+| `azure.authentication.x509Password` | Password for the PFX certificate | `nil` **(Must be provided)** |
+| `azure.authentication.tentantID` | Azure AD Tenant ID for authenticating the application with Azure AD. In GUID format: `00000000-0000-0000-0000-000000000000`  | `nil` **(Must be provided)**|
+| `azure.authentication.clientID` | Azure AD Client ID for authenticating the application with Azure AD. In GUID format: `00000000-0000-0000-0000-000000000000` | `nil` **(Must be provided)**|
 
