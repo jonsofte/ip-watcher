@@ -5,9 +5,9 @@
 
 A simple tool for monitoring the current public IP address of a host/cluster.
 
-If a service is running on a host with a public facing IP address that might change unexpectedly, this service will notice the change, and update an external store with the new IP address. 
+If a service is running on a host with a public facing IP address that might change unexpectedly, this service will detect the change, and update an external store (Azure Blob Storage) with the new IP address. 
 
-An external client which is dependent on the internal service, that detects that the service is no longer available, can then get the IP address from the store, update its internal configuration, and reconnect to the service that is now being exposed on the new IP address.
+An external client which is dependent on the internal service, that detects that the service is no longer available, can then get the new IP address from the store, update its internal configuration, and reconnect to the service that is now being exposed on the new IP address.
 
 ## Impementation
 
@@ -17,6 +17,7 @@ An external client which is dependent on the internal service, that detects that
 * A cron job triggers the application at a regular interval.
 * The current public IP address is compared to the previous registered address. If it has changed, the new address is persisted to the storage container.
 * Open Telemetry is being provided to monitor the application. Logs and Traces are being forwarded to an [Open Telemetry Collector](https://opentelemetry.io/docs/collector/). Traces can then be monitored in Jaeger, and Logs can be viewed in ElasticSearch.
+* The service is imlpemented with .Net 7.
 
 ## Installation and configuration
 
