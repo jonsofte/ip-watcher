@@ -27,7 +27,7 @@ An external client which is dependent on the internal service, that detects that
 4. [Generate a x509 certificate](#generate-a-x509-certificate) (To be used for Authentication between the app and the Azure Blob files).
 5. [Assign the certificate to the Application Service Principal](#upload-the-certificate-to-azure-ad-and-bind-it-to-the-application-id).
 6. [Create a Role Binding on the Blob Storage Container that gives the SP read/write access to the Blob](#assign-readwrite-access-to-application-service-principal).
-7. [Generate a PFX Certificate from the x509 certificate](#generate-a-pfx-file-to-be-used-in-the-application-for-authentication-to-the-newly-created) (To be used in the container for accessing the Blob).
+7. [Generate a PFX Certificate from the x509 certificate](#generate-a-pfx-certificate-to-be-used-in-the-service) (To be used in the container for accessing the Blob).
 6. Use Helm to install the application on a local cluster, or install the container manually.
 7. Configure the application via the Helm values.yaml file.
 
@@ -92,7 +92,7 @@ az role assignment create --role "Storage Blob Data Contributor" \
 
 The Application Service Principal is now ready to accept requests
 
-### Generate a pfx file to be used in the application for authentication to the newly created
+### Generate a PFX Certificate to be used in the service
 
 ``` sh
 # Service Princial. When requested to enter and create a new password, take note of the password
@@ -121,8 +121,8 @@ The following table lists the configurable parameters of the IP Watcher and thei
 | `azure.blob.containerName`          | Blob Container name | `nil` **(Must be provided)**|
 | `azure.blob.currentIpFile`          | Filename for JSON document in container with the current registered IP Address | `ip_watcher_current_ip.json` |
 | `azure.blob.logFile`                | Filename for JSON document in container that contains a log of previous registered IP Addresses | `ip_watcher_change_log.json` |
-| `azure.auth.x509CertPath` | Path of the PFX Certificate that is being used in the application to authenticate to the Azure Application Service Principal. Note: If value is changed, the file must also be mounted into the container at the same path. | `/certificates/certwithkey.pfx` |
-| `azure.auth.x509Password` | Password for the PFX certificate | `nil` **(Must be provided)** |
+| `azure.auth.certificatePath` | Path of the PFX Certificate that is being used in the application to authenticate to the Azure Application Service Principal. Note: If value is changed, the file must also be mounted into the container at the same path. | `/certificates/certwithkey.pfx` |
+| `azure.auth.certificatePassword` | Password for the PFX certificate | `nil` **(Must be provided)** |
 | `azure.auth.tentantID` | Azure AD Tenant ID for authenticating the application with Azure AD. In GUID format: `00000000-0000-0000-0000-000000000000`  | `nil` **(Must be provided)**|
 | `azure.auth.clientID` | Azure AD Client ID for authenticating the application with Azure AD. In GUID format: `00000000-0000-0000-0000-000000000000` | `nil` **(Must be provided)**|
 
