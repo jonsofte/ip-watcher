@@ -15,10 +15,10 @@ An external client which is dependent on the internal service, that detects that
 * The previous registered IP address is stored in a [Azure Storage Container Blob](https://azure.microsoft.com/en-us/products/storage/blobs). 
 * The application authenticates to Azure with an Application Service Principal. The principal has an assigned role that has read/write access to the specified storage container.
 * A cron job triggers the application at a regular interval.
-* The current public IP address is then compared to the previous registered address. If it has changed, the new address is persisted to the storage container.
+* The current public IP address is compared to the previous registered address. If it has changed, the new address is persisted to the storage container.
 * Open Telemetry is being provided to monitor the application. Logs and Traces are being forwarded to an [Open Telemetry Collector](https://opentelemetry.io/docs/collector/). Traces can then be monitored in Jaeger, and Logs can be viewed in ElasticSearch.
 
-## Installation and configuration of application on Azure and on local Kubernetes cluster with Helm
+## Installation and configuration
 
 1. Create a Storage Account in Azure ([Docs](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-cli)). Take note of the Account URI.
 2. Create a Blob Container in the Storage Account ([Docs](https://learn.microsoft.com/en-us/azure/storage/blobs/blob-containers-cli#create-a-container)). Take not of the Container name.
