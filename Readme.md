@@ -121,8 +121,8 @@ The following table lists the configurable parameters of the IP Watcher and thei
 | `azure.blob.containerName`          | Blob Container name | `nil` **(Must be provided)**|
 | `azure.blob.currentIpFile`          | Filename for JSON document in container with the current registered IP Address | `ip_watcher_current_ip.json` |
 | `azure.blob.logFile`                | Filename for JSON document in container that contains a log of previous registered IP Addresses | `ip_watcher_change_log.json` |
-| `azure.authentication.x509CertificatePath` | Path of the PFX Certificate that is being used in the application to authenticate to the Azure Application Service Principal. Note: If value is changed, the file must also be mounted into the container at the same path. | `/certificates/certwithkey.pfx` |
-| `azure.authentication.x509Password` | Password for the PFX certificate | `nil` **(Must be provided)** |
-| `azure.authentication.tentantID` | Azure AD Tenant ID for authenticating the application with Azure AD. In GUID format: `00000000-0000-0000-0000-000000000000`  | `nil` **(Must be provided)**|
-| `azure.authentication.clientID` | Azure AD Client ID for authenticating the application with Azure AD. In GUID format: `00000000-0000-0000-0000-000000000000` | `nil` **(Must be provided)**|
+| `azure.auth.x509CertPath` | Path of the PFX Certificate that is being used in the application to authenticate to the Azure Application Service Principal. Note: If value is changed, the file must also be mounted into the container at the same path. | `/certificates/certwithkey.pfx` |
+| `azure.auth.x509Password` | Password for the PFX certificate | `nil` **(Must be provided)** |
+| `azure.auth.tentantID` | Azure AD Tenant ID for authenticating the application with Azure AD. In GUID format: `00000000-0000-0000-0000-000000000000`  | `nil` **(Must be provided)**|
+| `azure.auth.clientID` | Azure AD Client ID for authenticating the application with Azure AD. In GUID format: `00000000-0000-0000-0000-000000000000` | `nil` **(Must be provided)**|
 
