@@ -15,7 +15,7 @@ public class SynchronizationCronService : IHostedService
     private readonly ILogger<SynchronizationCronService> _logger;
     private readonly IOptionsMonitor<ApplicationConfiguration> _configuration;
     private readonly int _taskDelay = 1000 * 5;
-    private string _version;
+    private readonly string _version;
     private CrontabSchedule _schedule;
     private string _cronScheduleString;
     private DateTime _nextRun;

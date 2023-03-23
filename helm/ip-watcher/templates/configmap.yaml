@@ -9,7 +9,7 @@ data:
   IPWatcher_AzureStorageConfiguration__Blob__ChangeLogFile: {{ .Values.azure.blob.logFile }}
   IPWatcher_AzureStorageConfiguration__Blob__ContainerName: {{ required "A valid Azure Blob Container name must be provided in the azure.blob.containerName value" .Values.azure.blob.containerName }} 
   IPWatcher_AzureStorageConfiguration__Blob__CurrentIPFile: {{ .Values.azure.blob.currentIpFile }}
-  IPWatcher_CronScheduleConfiguration__CronSchedule: {{ .Values.cronSchedule }} 
+  IPWatcher_ApplicationConfiguration__CronSchedule: {{ .Values.cronSchedule }} 
   IPWatcher_Serilog__MinimumLevel__Default: {{ .Values.loglevel }}
   IPWatcher_ApplicationConfiguration__OTELEnable: {{ .Values.otel.enable }},
   IPWatcher_ApplicationConfiguration__OTELExporterEndpoint": {{ .Values.otel.endpoint }}

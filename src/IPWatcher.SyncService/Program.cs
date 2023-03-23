@@ -30,6 +30,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         bool EnableOTEL = isOTELEnabled(hostBuilderContext);
         string OTELEndoint = hostBuilderContext.Configuration["ApplicationConfiguration:OTELExporterEndpoint"]!;
 
+
         services.AddOptions();
         services.AddOpenTelemetry()
         .WithTracing(builder =>
@@ -37,9 +38,11 @@ IHost host = Host.CreateDefaultBuilder(args)
             if (EnableOTEL)
             {
                 builder.AddOtlpExporter(o => o.Endpoint = new Uri(OTELEndoint));
+                Console.WriteLine($"OTEL enabled. Sending traces to: {OTELEndoint}");
             }
 
             builder
+                .AddConsoleExporter()
                 .AddSource("IP Watcher")
                 .SetResourceBuilder(
                     ResourceBuilder.CreateDefault()
@@ -65,9 +68,12 @@ await host.RunAsync();
 
 static bool isOTELEnabled(HostBuilderContext hostBuilderContext)
 {
-    if (string.IsNullOrWhiteSpace(hostBuilderContext.Configuration["ApplicationConfiguration:OTELEnable"]))
+
+    if (string.IsNullOrWhiteSpace(hostBuilderContext.Configuration["ApplicationConfiguration:OTELEnable"]) ||
+        hostBuilderContext.Configuration["ApplicationConfiguration:OTELEnable"]! != "true")
     {
+        Console.WriteLine("OTEL not enabled");
         return false;
     }
-    return (hostBuilderContext.Configuration["ApplicationConfiguration:OTELEnable"]! == "true");
+    return true;
 }

@@ -35,7 +35,7 @@ public class IpifyClient : ICurrentIPResolver
                     return Result.Success(ip);
                 }
             }
-            _logger.LogError($"Not able to get IP address: {result.StatusCode}");
+            _logger.LogError("Not able to get IP address: {errorcode}", result.StatusCode);
             return Result.Failure<IPAddress>($"Not able to get IP address: {result.StatusCode}");
         } catch (Exception ex)
         {
