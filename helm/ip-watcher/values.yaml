@@ -22,3 +22,7 @@ azure:
     certPassword:
     tenantID:
     clientID:
+
+otel:
+  enable: false
+  endpoint: 

@@ -2,8 +2,9 @@
 
 public class ApplicationConfiguration
 {
-    private string _cronSchedule;
-    private string _version;
+    private string _cronSchedule = String.Empty;
+    private string _version = String.Empty;
+    private string _oTELExporterEndpoint = String.Empty;
 
     public string CronSchedule
     {
@@ -24,10 +25,14 @@ public class ApplicationConfiguration
             _version = value;
         }
     }
-
-    public ApplicationConfiguration()
+    public string OTELExporterEndpoint
     {
-        _cronSchedule = "";
-        _version= "";
+        get { return _oTELExporterEndpoint; }
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value)) _oTELExporterEndpoint = "";
+            _oTELExporterEndpoint = value;
+        }
     }
+    
 }

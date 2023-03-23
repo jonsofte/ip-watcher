@@ -1,16 +1,21 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Diagnostics;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
-using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using OpenTelemetry;
-using IPWatcher.SyncService;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Logs;
+
 using IPWatcher.AzurePersistantStorage;
-using IPWatcher.IpifyClient;
 using IPWatcher.SyncHandler;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using IPWatcher.IpifyClient;
+
+using IPWatcher.SyncService;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .UseContentRoot(Path.GetDirectoryName(AppContext.BaseDirectory)!)
@@ -22,20 +27,28 @@ IHost host = Host.CreateDefaultBuilder(args)
     })
     .ConfigureServices((hostBuilderContext, services) =>
     {
+        bool EnableOTEL = isOTELEnabled(hostBuilderContext);
+        string OTELEndoint = hostBuilderContext.Configuration["ApplicationConfiguration:OTELExporterEndpoint"]!;
+
         services.AddOptions();
         services.AddOpenTelemetry()
-            .WithTracing(builder =>
+        .WithTracing(builder =>
+        {
+            if (EnableOTEL)
             {
-                builder.AddConsoleExporter()
-                .AddSource("IPWatcher")
+                builder.AddOtlpExporter(o => o.Endpoint = new Uri(OTELEndoint));
+            }
+
+            builder
+                .AddSource("IP Watcher")
                 .SetResourceBuilder(
                     ResourceBuilder.CreateDefault()
-                        .AddService(hostBuilderContext.HostingEnvironment.ApplicationName))
-                ;
-            });
+                        .AddService(hostBuilderContext.HostingEnvironment.ApplicationName)
+                        );
+        });
         services.Configure<ApplicationConfiguration>(hostBuilderContext.Configuration.GetSection("ApplicationConfiguration"));
         services.Configure<AzureStorageConfiguration>(hostBuilderContext.Configuration.GetSection("AzureStorageConfiguration"));
-        services.TryAddSingleton(Sdk.CreateTracerProviderBuilder().Build()!);
+        services.TryAddSingleton(new ActivitySource("IP Watcher"));
         services.AddIpifyClient();
         services.AddIPStorage();
         services.AddSyncService();
@@ -49,3 +62,12 @@ IHost host = Host.CreateDefaultBuilder(args)
     .Build();
 
 await host.RunAsync();
+
+static bool isOTELEnabled(HostBuilderContext hostBuilderContext)
+{
+    if (string.IsNullOrWhiteSpace(hostBuilderContext.Configuration["ApplicationConfiguration:OTELEnable"]))
+    {
+        return false;
+    }
+    return (hostBuilderContext.Configuration["ApplicationConfiguration:OTELEnable"]! == "true");
+}

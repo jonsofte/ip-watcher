@@ -11,3 +11,5 @@ data:
   IPWatcher_AzureStorageConfiguration__Blob__CurrentIPFile: {{ .Values.azure.blob.currentIpFile }}
   IPWatcher_CronScheduleConfiguration__CronSchedule: {{ .Values.cronSchedule }} 
   IPWatcher_Serilog__MinimumLevel__Default: {{ .Values.loglevel }}
+  IPWatcher_ApplicationConfiguration__OTELEnable: {{ .Values.otel.enable }},
+  IPWatcher_ApplicationConfiguration__OTELExporterEndpoint": {{ .Values.otel.endpoint }}
