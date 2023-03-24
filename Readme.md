@@ -9,18 +9,22 @@ If a service is running on a host with a public facing IP address that might cha
 
 If an external client which is dependent on the internal service, detects that the service is no longer available, it can get the new IP address from the store, update its internal configuration, and reconnect to the service that is now being exposed on the new IP address.
 
-## Implementation
+## Description
 
 * For detecting the current IP address, the service calls the [ipify.org](https://www.ipify.org/) public REST API.
 * The previous registered IP address is stored in a [Azure Storage Container Blob](https://azure.microsoft.com/en-us/products/storage/blobs). 
 * The application authenticates to Azure with an Application Service Principal. The principal has an assigned role that has read/write access to the specified storage container.
 * A cron job triggers and runs the service at a fixed interval.
 * The current public IP address is compared to the previous registered IP address. If it has changed, the new IP address is persisted to the Blob storage container.
-* Open Telemetry is provided from the service. Logs and Traces are being forwarded to an [Open Telemetry Collector](https://opentelemetry.io/docs/collector/). This enables Traces to be monitored in Jaeger, and Logs to be viewed in ElasticSearch.
 * The service is implemented with .NET 7.
 * A Helm chart is provided for easy installation and configuration on a Kubernetes cluster.
 
 ![Architecture](https://user-images.githubusercontent.com/24587666/225579998-6ebf0bd8-d5f9-46d1-9e34-96bf5cfe007a.png)
+
+## Logging and Tracing
+
+* Logs are written to the Console (stdout). 
+* Tracing is optional, and may be sent to an [Open Telemetry Collector](https://opentelemetry.io/docs/collector/). Forwarding of traces is done by enabeling the feature flag and specifying an URI to an OTLP HttpProtobuf protocol enabled endpoint. See the Configuration Parameters
 
 ## Installation and configuration of Azure Resources and Certificate
 
@@ -163,4 +167,6 @@ The following table lists the configurable parameters of the IP Watcher and thei
 | `azure.auth.certPassword` | Password for the PFX certificate | `nil` **(Must be provided)** |
 | `azure.auth.tentantID` | Azure AD Tenant ID for authenticating the application with Azure AD. In GUID format: `00000000-0000-0000-0000-000000000000`  | `nil` **(Must be provided)**|
 | `azure.auth.clientID` | Azure AD Client ID for authenticating the application with Azure AD. In GUID format: `00000000-0000-0000-0000-000000000000` | `nil` **(Must be provided)**|
+| `otel.enable` | True/False: Enable OTEL exporter for sending Tracing to an OpenTelemetry Collector  | `false` |
+| `otel.endpoint` | URI to OpenTelemetry Traces Collector. The exporter is using the HttpProtobuf protocol. Example of URI: `http://<service>:4318/v1/traces`  | `nil` (Must be provided) |
 

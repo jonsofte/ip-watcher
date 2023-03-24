@@ -25,4 +25,4 @@ azure:
 
 otel:
   enable: false
-  endpoint: 
+  endpoint:
