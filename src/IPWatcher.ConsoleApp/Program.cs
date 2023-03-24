@@ -37,7 +37,12 @@ static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilde
             {
                 if (EnableOTEL) 
                 { 
-                    builder.AddOtlpExporter(o => o.Endpoint = new Uri(OTELEndoint));
+                    builder.AddOtlpExporter(o =>
+                        {
+                            o.Endpoint = new Uri(OTELEndoint);
+                            o.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
+                        }
+                    );
                 }
 
                 builder
