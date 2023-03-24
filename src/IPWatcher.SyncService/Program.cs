@@ -35,12 +35,6 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddOpenTelemetry()
         .WithTracing(builder =>
         {
-            if (EnableOTEL)
-            {
-                builder.AddOtlpExporter(o => o.Endpoint = new Uri(OTELEndoint));
-                Console.WriteLine($"OTEL enabled. Sending traces to: {OTELEndoint}");
-            }
-
             builder
                 .AddConsoleExporter()
                 .AddSource("IP Watcher")
@@ -48,6 +42,13 @@ IHost host = Host.CreateDefaultBuilder(args)
                     ResourceBuilder.CreateDefault()
                         .AddService(hostBuilderContext.HostingEnvironment.ApplicationName)
                         );
+            
+            if (EnableOTEL)
+            {
+                builder.AddOtlpExporter(o => o.Endpoint = new Uri(OTELEndoint));
+                Console.WriteLine($"OTEL enabled. Sending traces to: {OTELEndoint}");
+            }
+            builder.Build();
         });
         services.Configure<ApplicationConfiguration>(hostBuilderContext.Configuration.GetSection("ApplicationConfiguration"));
         services.Configure<AzureStorageConfiguration>(hostBuilderContext.Configuration.GetSection("AzureStorageConfiguration"));
