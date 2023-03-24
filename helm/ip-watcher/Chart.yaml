@@ -3,5 +3,5 @@ name: ip-watcher
 description: Service for monitoring unexpected change of public IP address
 type: application
 home: https://github.com/jonsofte/ip-watcher
-version: 1.0.0
-appVersion: 0.9.2
+version: 1.0.1
+appVersion: 0.9.10
