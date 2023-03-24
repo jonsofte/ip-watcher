@@ -44,7 +44,11 @@ IHost host = Host.CreateDefaultBuilder(args)
             
             if (EnableOTEL)
             {
-                builder.AddOtlpExporter(o => o.Endpoint = new Uri(OTELEndoint));
+                builder.AddOtlpExporter(o =>
+                {
+                    o.Endpoint = new Uri(OTELEndoint);
+                    o.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
+                });
                 Console.WriteLine($"OTEL enabled. Sending traces to: {OTELEndoint}");
             }
         });
