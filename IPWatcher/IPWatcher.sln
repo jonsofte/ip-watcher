@@ -1,0 +1,53 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33103.184
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9809025D-EC87-4CF2-A08A-D7B581F7A8C4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IPWatcher.Core", "src\IPWatcher.Core\IPWatcher.Core.csproj", "{0B1F7588-5F51-4664-A7DA-BF7E446F81E2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IPWatcher.SyncService", "src\IPWatcher.SyncService\IPWatcher.SyncService.csproj", "{C05938AB-5086-4D6A-B97A-321DF4B37BF7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{9EA5A2EF-D89D-47EE-B9A2-CFB8F8368211}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IpWatcher.Tests", "test\IpWatcher.Tests\IpWatcher.Tests.csproj", "{2DB1C91E-0249-440F-804A-E35E5B6F6D87}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IPWatcher.Infrastructure", "src\IPWatcher.Infrastructure\IPWatcher.Infrastructure.csproj", "{31EF40AF-45F1-47ED-83DD-8E4D0AA6EE05}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0B1F7588-5F51-4664-A7DA-BF7E446F81E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B1F7588-5F51-4664-A7DA-BF7E446F81E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B1F7588-5F51-4664-A7DA-BF7E446F81E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B1F7588-5F51-4664-A7DA-BF7E446F81E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C05938AB-5086-4D6A-B97A-321DF4B37BF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C05938AB-5086-4D6A-B97A-321DF4B37BF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C05938AB-5086-4D6A-B97A-321DF4B37BF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C05938AB-5086-4D6A-B97A-321DF4B37BF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DB1C91E-0249-440F-804A-E35E5B6F6D87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DB1C91E-0249-440F-804A-E35E5B6F6D87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DB1C91E-0249-440F-804A-E35E5B6F6D87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DB1C91E-0249-440F-804A-E35E5B6F6D87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31EF40AF-45F1-47ED-83DD-8E4D0AA6EE05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31EF40AF-45F1-47ED-83DD-8E4D0AA6EE05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31EF40AF-45F1-47ED-83DD-8E4D0AA6EE05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31EF40AF-45F1-47ED-83DD-8E4D0AA6EE05}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0B1F7588-5F51-4664-A7DA-BF7E446F81E2} = {9809025D-EC87-4CF2-A08A-D7B581F7A8C4}
+		{C05938AB-5086-4D6A-B97A-321DF4B37BF7} = {9809025D-EC87-4CF2-A08A-D7B581F7A8C4}
+		{2DB1C91E-0249-440F-804A-E35E5B6F6D87} = {9EA5A2EF-D89D-47EE-B9A2-CFB8F8368211}
+		{31EF40AF-45F1-47ED-83DD-8E4D0AA6EE05} = {9809025D-EC87-4CF2-A08A-D7B581F7A8C4}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B00AF92A-2C5A-4F71-8CEF-37B09F6CA0EC}
+	EndGlobalSection
+EndGlobal
